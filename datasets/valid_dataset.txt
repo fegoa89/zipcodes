@@ -1,0 +1,8 @@
+DE	01945	Guteborn	Brandenburg	BB		00	Landkreis Oberspreewald-Lausitz	12066	51.4167	13.9333	4
+DE	03058	Gablenz	Brandenburg	BB		00	Landkreis Spree-Neiße	12071	51.6865	14.5094	4
+DE	94051	Hauzenberg	Bayern	BY	Lower Bavaria	092	Landkreis Passau	09275	48.6496	13.6265	4
+DE	87787	Wolfertschwenden	Bayern	BY	Swabia	097	Landkreis Unterallgäu	09778	47.8935	10.2672	4
+DE	34134	Kassel	Hessen	HE	Regierungsbezirk Kassel	066	Kassel, documenta-Stadt	06611	51.2878	9.4705	4
+DE	20457	Hamburg Neustadt	Hamburg	HH		00	Hamburg, Freie und Hansestadt	02000	53.5497	9.9794	4
+DE	22525	Hamburg Eidelstedt	Hamburg	HH		00	Hamburg, Freie und Hansestadt	02000	53.605	9.9161	4
+DE	19053	Schwerin	Mecklenburg-Vorpommern	MV		00	Schwerin	13004	53.6313	11.4092	4
