@@ -27,3 +27,17 @@ When a object is found, returns its zipcode, place name, administrative name, la
 ```golang
 location, err := zipcodesDataset.Lookup("10395")
 ```
+
+### DistanceInKm
+Returns the line of sight distance between two zipcodes in kilometers:
+
+```golang
+location, err := zipcodesDataset.DistanceInKm("01945", "03058") // 49.87
+```
+
+### DistanceInMiles
+Returns the line of sight distance between two zipcodes in miles:
+
+```golang
+location, err := zipcodesDataset.DistanceInMiles("01945", "03058") // 30.98
+```

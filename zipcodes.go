@@ -6,9 +6,15 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strconv"
 	"strings"
+)
+
+const (
+	earthRaidusKm = 6371
+	earthRadiusMi = 3958
 )
 
 // ZipCodeLocation struct represents each line of the dataset
@@ -43,6 +49,57 @@ func (zc *Zipcodes) Lookup(zipCode string) (*ZipCodeLocation, error) {
 		return &ZipCodeLocation{}, fmt.Errorf("zipcodes: zipcode %s not found !", zipCode)
 	}
 	return &foundedZipcode, nil
+}
+
+// DistanceInKm returns the line of sight distance between two zipcodes in Kilometers
+func (zc *Zipcodes) DistanceInKm(zipCodeA string, zipCodeB string) (float64, error) {
+	return zc.CalculateDistance(zipCodeA, zipCodeB, earthRaidusKm)
+}
+
+// DistanceInMiles returns the line of sight distance between two zipcodes in Miles
+func (zc *Zipcodes) DistanceInMiles(zipCodeA string, zipCodeB string) (float64, error) {
+	return zc.CalculateDistance(zipCodeA, zipCodeB, earthRadiusMi)
+}
+
+// CalculateDistance returns the line of sight distance between two zipcodes in Kilometers
+func (zc *Zipcodes) CalculateDistance(zipCodeA string, zipCodeB string, radius float64) (float64, error) {
+	locationA, errLocA := zc.Lookup(zipCodeA)
+	if errLocA != nil {
+		return 0, errLocA
+	}
+
+	locationB, errLocB := zc.Lookup(zipCodeB)
+	if errLocB != nil {
+		return 0, errLocB
+	}
+
+	return DistanceBetweenPoints(locationA.Lat, locationA.Lon, locationB.Lat, locationB.Lon, radius), nil
+}
+
+func hsin(t float64) float64 {
+	return math.Pow(math.Sin(t/2), 2)
+}
+
+// degreesToRadians converts degrees to radians
+func degreesToRadians(d float64) float64 {
+	return d * math.Pi / 180
+}
+
+// DistanceBetweenPoints returns the distance between two lat/lon
+// points using the Haversin distance formula.
+func DistanceBetweenPoints(latitude1, longitude1, latitude2, longitude2 float64, radius float64) float64 {
+	lat1 := degreesToRadians(latitude1)
+	lon1 := degreesToRadians(longitude1)
+	lat2 := degreesToRadians(latitude2)
+	lon2 := degreesToRadians(longitude2)
+	diffLat := lat2 - lat1
+	diffLon := lon2 - lon1
+
+	a := hsin(diffLat) + math.Cos(lat1)*math.Cos(lat2)*hsin(diffLon)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	distance := c * radius
+
+	return math.Round(distance*100) / 100
 }
 
 // LoadDataset reads and loads the dataset into a map interface
