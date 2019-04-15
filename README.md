@@ -41,3 +41,31 @@ Returns the line of sight distance between two zipcodes in miles:
 ```golang
 location, err := zipcodesDataset.DistanceInMiles("01945", "03058") // 30.98
 ```
+
+### DistanceInKmToZipCode
+Calculates the distance between a zipcode and a give lat/lon in Kilometers:
+
+```golang
+location, err := zipcodesDataset.DistanceInKmToZipCode("01945", 51.4267, 13.9333) // 1.11
+```
+
+### DistanceInMilToZipCode
+Calculates the distance between a zipcode and a give lat/lon in Miles:
+
+```golang
+location, err := zipcodesDataset.DistanceInMilToZipCode("01945", 51.4267, 13.9333) // 0.69
+```
+
+### GetZipcodesWithinKmRadius
+Returns a list of zipcodes within the radius of this zipcode in Kilometers:
+
+```golang
+location, err := zipcodesDataset.GetZipcodesWithinKmRadius("01945", 50) // ["03058"]
+```
+
+### GetZipcodesWithinMlRadius
+Returns a list of zipcodes within the radius of this zipcode in Miles:
+
+```golang
+location, err := zipcodesDataset.GetZipcodesWithinMlRadius("01945", 50) // ["03058"]
+```

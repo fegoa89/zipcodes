@@ -107,7 +107,7 @@ func TestDistanceBetweenPoints(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		kms := DistanceBetweenPoints(c.coordsA[0], c.coordsA[1], c.coordsB[0], c.coordsB[1], earthRaidusKm)
+		kms := DistanceBetweenPoints(c.coordsA[0], c.coordsA[1], c.coordsB[0], c.coordsB[1], earthRadiusKm)
 		if kms != c.ExpectedKM {
 			t.Errorf("Distance does not match. Expected %v, got %v", c.ExpectedKM, kms)
 		}
@@ -144,7 +144,7 @@ func TestCalculateDistance(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		kms, err := zipcodesDataset.CalculateDistance(c.ZipCodeA, c.ZipCodeB, earthRaidusKm)
+		kms, err := zipcodesDataset.CalculateDistance(c.ZipCodeA, c.ZipCodeB, earthRadiusKm)
 		if err != nil {
 			t.Errorf("Unexpected error while looking for zipcode %s", err)
 		}
@@ -177,7 +177,7 @@ func TestCalculateDistance(t *testing.T) {
 	}
 
 	for _, c := range fail {
-		_, err := zcDataset.CalculateDistance(c.ZipCodeA, c.ZipCodeB, earthRaidusKm)
+		_, err := zcDataset.CalculateDistance(c.ZipCodeA, c.ZipCodeB, earthRadiusKm)
 		if err.Error() != c.ExpectedErr {
 			t.Errorf("Unexpected error. Got %s, want %s", err, c.ExpectedErr)
 		}
@@ -258,6 +258,195 @@ func TestDistanceInMiles(t *testing.T) {
 		}
 		if miles != c.ExpectedMi {
 			t.Errorf("Distance does not match. Expected %v, got %v", c.ExpectedMi, miles)
+		}
+	}
+}
+
+func TestDistanceInKmToZipCode(t *testing.T) {
+	cases := []struct {
+		ZipCode          string
+		Latitude         float64
+		Longitude        float64
+		ExpectedResponse float64
+	}{
+		{
+			"01945",
+			51.4267,
+			13.9333,
+			1.11,
+		},
+		{
+			"01945",
+			51.4067,
+			13.9333,
+			1.11,
+		},
+	}
+
+	zipcodesDataset, err := New("datasets/valid_dataset.txt")
+	if err != nil {
+		t.Errorf("Unexpected error while initializing struct %v", err)
+	}
+
+	for _, c := range cases {
+		kms, err := zipcodesDataset.DistanceInKmToZipCode(c.ZipCode, c.Latitude, c.Longitude)
+
+		if err != nil {
+			t.Errorf("Unexpected error while looking for zipcode %s", err)
+		}
+
+		if kms != c.ExpectedResponse {
+			t.Errorf("Expected distance in kilometers to zipcode does not match. Expected %v, got %v", c.ExpectedResponse, kms)
+		}
+	}
+}
+
+func TestDistanceInMilToZipCode(t *testing.T) {
+	cases := []struct {
+		ZipCode          string
+		Latitude         float64
+		Longitude        float64
+		ExpectedResponse float64
+	}{
+		{
+			"01945",
+			51.4267,
+			13.9333,
+			0.69,
+		},
+		{
+			"01945",
+			51.4067,
+			13.9333,
+			0.69,
+		},
+	}
+
+	zipcodesDataset, err := New("datasets/valid_dataset.txt")
+	if err != nil {
+		t.Errorf("Unexpected error while initializing struct %v", err)
+	}
+
+	for _, c := range cases {
+		miles, err := zipcodesDataset.DistanceInMilToZipCode(c.ZipCode, c.Latitude, c.Longitude)
+
+		if err != nil {
+			t.Errorf("Unexpected error while looking for zipcode %s", err)
+		}
+
+		if miles != c.ExpectedResponse {
+			t.Errorf("Expected distance in miles to zipcode does not match. Expected %v, got %v", c.ExpectedResponse, miles)
+		}
+	}
+}
+
+func TestGetZipcodesWithinKmRadius(t *testing.T) {
+	cases := []struct {
+		ZipCode          string
+		Radius           float64
+		ExpectedResponse []string
+	}{
+		{
+			"01945",
+			50.0,
+			[]string{"03058"},
+		},
+		{
+			"01945",
+			100.0,
+			[]string{"03058"},
+		},
+	}
+	zipcodesDataset, err := New("datasets/valid_dataset.txt")
+	if err != nil {
+		t.Errorf("Unexpected error while initializing struct %v", err)
+	}
+	for _, c := range cases {
+		zcList, err := zipcodesDataset.GetZipcodesWithinKmRadius(c.ZipCode, c.Radius)
+		if err != nil {
+			t.Errorf("Unexpected error while looking for zipcode %s", err)
+		}
+
+		if reflect.DeepEqual(zcList, c.ExpectedResponse) != true {
+			t.Errorf("Unxpected zipcode list returned.")
+		}
+	}
+}
+
+func TestGetZipcodesWithinMlRadius(t *testing.T) {
+	cases := []struct {
+		ZipCode          string
+		Radius           float64
+		ExpectedResponse []string
+	}{
+		{
+			"01945",
+			50.0,
+			[]string{"03058"},
+		},
+		{
+			"01945",
+			100.0,
+			[]string{"03058"},
+		},
+	}
+	zipcodesDataset, err := New("datasets/valid_dataset.txt")
+	if err != nil {
+		t.Errorf("Unexpected error while initializing struct %v", err)
+	}
+	for _, c := range cases {
+		zcList, err := zipcodesDataset.GetZipcodesWithinMlRadius(c.ZipCode, c.Radius)
+		if err != nil {
+			t.Errorf("Unexpected error while looking for zipcode %s", err)
+		}
+
+		if reflect.DeepEqual(zcList, c.ExpectedResponse) != true {
+			t.Errorf("Unxpected zipcode list returned.")
+		}
+	}
+}
+
+func TestFindZipcodesWithinRadius(t *testing.T) {
+	cases := []struct {
+		Location     *ZipCodeLocation
+		MaxRadius    float64
+		EarthRadius  float64
+		ExpectedList []string
+	}{
+		{
+			&ZipCodeLocation{
+				ZipCode:   "01945",
+				PlaceName: "Guteborn",
+				AdminName: "Brandenburg",
+				Lat:       51.4167,
+				Lon:       13.9333,
+			},
+			50,
+			earthRadiusKm,
+			[]string{"03058"},
+		},
+		{
+			&ZipCodeLocation{
+				ZipCode:   "01945",
+				PlaceName: "Guteborn",
+				AdminName: "Brandenburg",
+				Lat:       51.4167,
+				Lon:       13.9333,
+			},
+			50,
+			earthRadiusKm,
+			[]string{"03058"},
+		},
+	}
+	zipcodesDataset, err := New("datasets/valid_dataset.txt")
+	if err != nil {
+		t.Errorf("Unexpected error while initializing struct %v", err)
+	}
+	for _, c := range cases {
+		list := zipcodesDataset.FindZipcodesWithinRadius(c.Location, c.MaxRadius, c.EarthRadius)
+
+		if reflect.DeepEqual(list, c.ExpectedList) != true {
+			t.Errorf("FindZipcodesWithinRadius returned an unexpected zipcode list.")
 		}
 	}
 }

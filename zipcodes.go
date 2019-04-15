@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	earthRaidusKm = 6371
+	earthRadiusKm = 6371
 	earthRadiusMi = 3958
 )
 
@@ -53,7 +53,7 @@ func (zc *Zipcodes) Lookup(zipCode string) (*ZipCodeLocation, error) {
 
 // DistanceInKm returns the line of sight distance between two zipcodes in Kilometers
 func (zc *Zipcodes) DistanceInKm(zipCodeA string, zipCodeB string) (float64, error) {
-	return zc.CalculateDistance(zipCodeA, zipCodeB, earthRaidusKm)
+	return zc.CalculateDistance(zipCodeA, zipCodeB, earthRadiusKm)
 }
 
 // DistanceInMiles returns the line of sight distance between two zipcodes in Miles
@@ -74,6 +74,63 @@ func (zc *Zipcodes) CalculateDistance(zipCodeA string, zipCodeB string, radius f
 	}
 
 	return DistanceBetweenPoints(locationA.Lat, locationA.Lon, locationB.Lat, locationB.Lon, radius), nil
+}
+
+// DistanceInKmToZipcode calculates the distance between a zipcode and a give lat/lon in Kilometers
+func (zc *Zipcodes) DistanceInKmToZipCode(zipCode string, latitude, longitude float64) (float64, error) {
+	location, errLoc := zc.Lookup(zipCode)
+	if errLoc != nil {
+		return 0, errLoc
+	}
+
+	return DistanceBetweenPoints(location.Lat, location.Lon, latitude, longitude, earthRadiusKm), nil
+}
+
+// DistanceInMilToZipcode calculates the distance between a zipcode and a give lat/lon in Miles
+func (zc *Zipcodes) DistanceInMilToZipCode(zipCode string, latitude, longitude float64) (float64, error) {
+	location, errLoc := zc.Lookup(zipCode)
+	if errLoc != nil {
+		return 0, errLoc
+	}
+
+	return DistanceBetweenPoints(location.Lat, location.Lon, latitude, longitude, earthRadiusMi), nil
+}
+
+// GetZipcodesWithinKmRadius get all zipcodes within the radius of this zipcode
+func (zc *Zipcodes) GetZipcodesWithinKmRadius(zipCode string, radius float64) ([]string, error) {
+	zipcodeList := []string{}
+	location, errLoc := zc.Lookup(zipCode)
+	if errLoc != nil {
+		return zipcodeList, errLoc
+	}
+
+	return zc.FindZipcodesWithinRadius(location, radius, earthRadiusKm), nil
+}
+
+// GetZipcodesWithinMlRadius get all zipcodes within the radius of this zipcode
+func (zc *Zipcodes) GetZipcodesWithinMlRadius(zipCode string, radius float64) ([]string, error) {
+	zipcodeList := []string{}
+	location, errLoc := zc.Lookup(zipCode)
+	if errLoc != nil {
+		return zipcodeList, errLoc
+	}
+
+	return zc.FindZipcodesWithinRadius(location, radius, earthRadiusMi), nil
+}
+
+// FindZipcodesWithinRadius finds zipcodes within a given radius
+func (zc *Zipcodes) FindZipcodesWithinRadius(location *ZipCodeLocation, maxRadius float64, earthRadius float64) []string {
+	zipcodeList := []string{}
+	for _, elm := range zc.DatasetList {
+		if elm.ZipCode != location.ZipCode {
+			distance := DistanceBetweenPoints(location.Lat, location.Lon, elm.Lat, elm.Lon, earthRadius)
+			if distance < maxRadius {
+				zipcodeList = append(zipcodeList, elm.ZipCode)
+			}
+		}
+	}
+
+	return zipcodeList
 }
 
 func hsin(t float64) float64 {
