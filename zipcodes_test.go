@@ -70,6 +70,7 @@ func TestLookup(t *testing.T) {
 		AdminName: "Brandenburg",
 		Lat:       51.4167,
 		Lon:       13.9333,
+		StateCode: "BB",
 	}
 
 	if reflect.DeepEqual(foundedZC, &expectedZipCode) != true {

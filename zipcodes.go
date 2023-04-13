@@ -24,6 +24,7 @@ type ZipCodeLocation struct {
 	AdminName string
 	Lat       float64
 	Lon       float64
+	StateCode string
 }
 
 // Zipcodes contains the whole list of structs representing
@@ -190,6 +191,7 @@ func LoadDataset(datasetPath string) (Zipcodes, error) {
 			AdminName: splittedLine[3],
 			Lat:       lat,
 			Lon:       lon,
+			StateCode: splittedLine[4],
 		}
 	}
 
